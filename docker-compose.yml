@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: smartprojet
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 27822
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d smartprojet"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn core.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - ./backend:/app
+      - ./staticfiles:/app/staticfiles
+    ports:
+      - "8000:8000"
+    depends_on:
+      db :
+       condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - STATIC_ROOT=/app/staticfiles
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=smartprojet
+      - DB_USER=postgres
+      - DB_PASSWORD=27822
+
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
