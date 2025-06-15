@@ -28,6 +28,7 @@ const SettingsNavigation = () => {
 	}, [pathname]);
 
 	if (!project) return null;
+	
 
 	return (
 		<div

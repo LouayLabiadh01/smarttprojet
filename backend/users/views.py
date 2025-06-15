@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import generics, status
 from .models import User
-from .serializers import ClerkWebhookSerializer
+from .serializers import ClerkWebhookSerializer, UserProfileSerializer
 import logging
 # users/views.py
 
@@ -14,6 +14,111 @@ from rest_framework.permissions import IsAuthenticated
 from django.core.cache import cache
 
 
+from users.serializers import UserSerializer
+
+@api_view(['GET'])
+def get_user_profile(request, user_id):
+    try:
+        user = User.objects.get(pk=user_id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+    except User.DoesNotExist:
+        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(["GET"])
+def api_get_users(request):
+    users = User.objects.all()
+    data = [
+        {
+            "user_id": user.user_id,
+            "username": user.username,
+            "profilePicture": user.profilePicture or "",
+            "role": user.role,
+        }
+        for user in users
+    ]
+    return Response(data)
+
+@api_view(["GET"])
+def api_get_user(request, user_id):
+    try:
+        user = User.objects.get(user_id=user_id)
+        return Response({
+            "user_id": user.user_id,
+            "username": user.username,
+            "profilePicture": user.profilePicture or "",
+            "role": user.role,
+        })
+    except UserProfile.DoesNotExist:
+        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(["POST"])
+def api_create_user(request):
+    data = request.data
+    user = User.objects.create(
+        user_id=data["user_id"],
+        username=data.get("username", ""),
+        profilePicture=data.get("profilePicture", ""),
+        role=data.get("role", "Membre"),
+    )
+    return Response({
+        "user_id": user.user_id,
+        "username": user.username,
+        "profilePicture": user.profilePicture,
+        "role": user.role,
+    }, status=status.HTTP_201_CREATED)
+
+@api_view(["PUT"])
+def api_update_user(request, user_id):
+    try:
+        user = User.objects.get(user_id=user_id)
+    except UserProfile.DoesNotExist:
+        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    data = request.data
+    user.username = data.get("username", user.username)
+    user.profilePicture = data.get("profilePicture", user.profilePicture)
+    user.role = data.get("role", user.role)
+    user.save()
+
+    return Response({
+        "user_id": user.user_id,
+        "username": user.username,
+        "profilePicture": user.profilePicture,
+        "role": user.role,
+    })
+
+@api_view(["DELETE"])
+def api_delete_user(request, user_id):
+    try:
+        user = User.objects.get(user_id=user_id)
+        user.delete()
+        return Response({"detail": "User deleted successfully"})
+    except UserProfile.DoesNotExist:
+        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(["PATCH"])
+def api_update_user_role(request, user_id):
+    try:
+        user = User.objects.get(user_id=user_id)
+    except UserProfile.DoesNotExist:
+        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    new_role = request.data.get("role")
+    if not new_role:
+        return Response({"detail": "Role is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.role = new_role
+    user.save()
+
+    return Response({
+        "user_id": user.user_id,
+        "username": user.username,
+        "profilePicture": user.profilePicture,
+        "role": user.role,
+    })
+
 
 @api_view(["GET"])
 def api_get_user(request, user_id):
@@ -23,6 +128,7 @@ def api_get_user(request, user_id):
             "userId": user.user_id,
             "username": user.username,
             "profilePicture": user.profilePicture,
+            "role": user.role,
         })
     except User.DoesNotExist:
         return Response(
@@ -80,3 +186,9 @@ class ClerkWebhookView(APIView):
         
         logger.error(f"Invalid webhook payload: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["GET"])
+def get_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    serializer = UserSerializer(user)
+    return Response(serializer.data)

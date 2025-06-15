@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 "use client";
 
 import React from "react";
@@ -87,7 +88,7 @@ const Filters = ({ username }: Props) => {
 						/>
 					))}
 				</div>
-				<Button variant="ghost" size="iconSm" onClick={toggleFilters}>
+				<Button variant="ghost" size="icon" onClick={toggleFilters}>
 					<X className="h-4 w-4" />
 					<span className="sr-only">Toggle Filters</span>
 				</Button>

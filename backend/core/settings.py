@@ -95,7 +95,7 @@ DATABASES = {
         'NAME': 'smartprojet',
         'USER': 'postgres',
         'PASSWORD': '27822',
-        'HOST': 'db',
+        'HOST': 'localhost',
         'PORT': '5432',
         'CONN_MAX_AGE': 60,
         'OPTIONS': {
@@ -151,7 +151,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # settings.py
 CLERK_WEBHOOK_SECRET = "whsec_0tS65XmIGu3pzd+vzMpkSPaKKqweFI3Z"
 CLERK_API_KEY ="pk_test_cmVhZHktZ3JhY2tsZS0xNy5jbGVyay5hY2NvdW50cy5kZXYk"
-DJANGO_API_URL = "localhost:8000"
+DJANGO_API_URL = "backend:8000"
 
 
 CORS_ALLOW_ALL_ORIGINS = True

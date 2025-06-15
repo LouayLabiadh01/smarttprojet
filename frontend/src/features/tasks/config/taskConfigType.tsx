@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable import/order */
 import {
 	ArrowDownIcon,
 	ArrowRightIcon,
@@ -9,6 +11,7 @@ import {
 	PieChartIcon,
 	RadiobuttonIcon,
 } from "@radix-ui/react-icons";
+import { Layers } from 'lucide-react';
 import { type VariantProps, cva } from "class-variance-authority";
 import _ from "lodash";
 import {
@@ -64,7 +67,7 @@ type EnumProperty = Extract<
 	"status" | "points" | "priority" | "type"
 >;
 type DynamicProperty = Extract<TaskProperty, "sprintId" | "assignee">;
-type TextProperty = Extract<TaskProperty, "title" | "description">;
+type TextProperty = Extract<TaskProperty, "title" | "description" | "subTask">;
 
 export const taskProperties: TaskProperty[] = [
 	"id",
@@ -81,6 +84,7 @@ export const taskProperties: TaskProperty[] = [
 	"projectId",
 	"backlogOrder",
 	"branchName",
+	"subTask"
 ] as const;
 
 export const taskVariants = cva(["transition-all duration-200"], {
@@ -425,6 +429,12 @@ export const taskConfig: TaskConfig = {
 		icon: <GitHubLogoIcon className="h-4 w-4" />,
 		type: "static",
 	},
+	subTask: {
+		key: "subTask",
+		displayName: "Sous-tâche de",
+		icon: <GitHubLogoIcon className="h-4 w-4" />,
+		type: "text",
+	}
 };
 
 function getDynamicConfig(assignees: User[], sprints: Sprint[]) {
@@ -547,6 +557,7 @@ export const schemaValidators = {
 	lastEditedAt: selectTaskSchema.shape.lastEditedAt,
 	insertedDate: selectTaskSchema.shape.insertedDate,
 	branchName: z.string().nullable(),
+	subTask: z.string().optional().default(""),
 };
 
 export function buildValidator(keys: TaskProperty[]) {
@@ -573,6 +584,7 @@ export const defaultValues = {
 	backlogOrder: 0,
 	lastEditedAt: new Date(),
 	insertedDate: new Date(),
+	subTask: "",
 } as const;
 
 type TaskOptions = {

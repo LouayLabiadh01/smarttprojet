@@ -15,6 +15,7 @@ import ProjectProgress from "~/components/project-progress"
 import ProjectCharts from "~/components/project-charts"
 import TasksTable from "~/components/tasks-table"
 import PdfExportButton from "~/components/pdf-export-button"
+import PageHeader from "./layout/PageHeader"
 
 interface User {
   id: number
@@ -84,6 +85,8 @@ export default function ProjectReportPage() {
   if (!selectedProject) return <div className="p-4">Projet non trouvé</div>
 
   return (
+    <>
+    <PageHeader breadCrumbs></PageHeader>
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -126,5 +129,6 @@ export default function ProjectReportPage() {
         </TabsContent>
       </Tabs>
     </div>
+    </>
   )
 }

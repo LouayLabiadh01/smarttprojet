@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -5,6 +6,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/consistent-type-imports */
 /* eslint-disable @typescript-eslint/require-await */
+import PageHeader from "~/components/layout/PageHeader";
 import { columns } from "./columns"
 import { DataTable } from "./data-table"
 
@@ -43,8 +45,11 @@ export default async function DemoPage() {
   const data = await getData()
 
   return (
-    <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={data} />
-    </div>
+    <>
+      <PageHeader breadCrumbs></PageHeader>
+      <div className="container mx-auto">
+        <DataTable columns={columns} data={data} />
+      </div>
+    </>
   )
 }

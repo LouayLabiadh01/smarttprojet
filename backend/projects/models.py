@@ -44,6 +44,7 @@ class UsersToProjects(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="users_to_projects")
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="users")
     user_role = models.CharField(max_length=16, choices=USER_ROLE_CHOICES)
+    skills = models.CharField(max_length=30, default ="")
 
     class Meta:
         db_table = "users_to_projects"

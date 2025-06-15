@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import Task, TaskHistory, TaskToView,Comment, TaskToView
-from projects.models import Sprint, Project
+from projects.models import Sprint, Project, UsersToProjects
 from users.models import User
 from .serializers import TaskSerializer, CreateTaskSerializer, UpdateTaskSerializer, CommentViewSerializer
 
@@ -273,7 +273,7 @@ def create_task_history(request, task_id):
 
 
 
-@csrf_exempt
+
 @api_view(["POST"])
 def update_or_insert_task_view(request, task_id): 
     task = get_object_or_404(Task, id=task_id)
@@ -286,3 +286,68 @@ def update_or_insert_task_view(request, task_id):
     )
 
     return Response({"message": "task view added", "id": obj.id})
+
+
+
+@api_view(['GET'])
+def get_recent_tasks(request):
+    user_id = request.GET.get("user")
+    if not user_id:
+        return Response({"detail": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    role = user.role.lower()
+    tasks = Task.objects.none()
+
+    if role == "admin":
+        tasks = Task.objects.all().order_by("-inserted_date")[:5]
+    elif role == "chef":
+        project_ids = UsersToProjects.objects.filter(
+            user=user,
+            user_role="owner"
+        ).values_list("project_id", flat=True)
+
+        tasks = Task.objects.filter(projectId_id__in=project_ids).order_by("-inserted_date")[:5]
+        print(tasks)
+
+    elif role == "membre":
+        tasks = Task.objects.filter(assignee=user).order_by("-inserted_date")[:5]
+
+    serializer = TaskSerializer(tasks, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_assigned_tasks(request):
+    user_id = request.GET.get("user")
+    if not user_id:
+        return Response({"detail": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    tasks = Task.objects.filter(assignee=user).order_by("-inserted_date")
+    serializer = TaskSerializer(tasks, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_task_by_id(request, task_id):
+    user_id = request.GET.get("user")
+    if not user_id:
+        return Response({"detail": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        task = Task.objects.get(pk=task_id)
+    except Task.DoesNotExist:
+        return Response({"detail": "Task not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # You can add extra permission check based on user role here if needed
+
+    serializer = TaskSerializer(task)
+    return Response(serializer.data)

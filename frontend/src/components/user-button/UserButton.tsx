@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 "use client";
 
 import React from "react";
@@ -39,7 +40,7 @@ const UserButton = ({ size = "default" }: Props) => {
 					</div>
 					<Button
 						variant="ghost"
-						size="iconSm"
+						size="icon"
 						className="h-[30px] w-[30px] flex-shrink-0"
 					>
 						<DotsVerticalIcon />

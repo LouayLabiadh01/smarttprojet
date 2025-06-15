@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { type Metadata } from "next";
 
-import ProjectCreateForm from "../components/CreateProjectForm";
+import Message from "~/components/Message";
 
 export const metadata: Metadata = {
 	title: "Create Project",
@@ -10,8 +11,17 @@ export default function createProjectPage() {
 	return (
 		<div className="flex justify-center">
 			<div className="flex flex-col gap-4">
-				<ProjectCreateForm className="rounded-lg border bg-background-dialog shadow-xl backdrop-blur-lg" />
+				<Message
+						type="faint"
+						description={
+							<p className="py-2">Vous n’êtes assigné à aucun projet pour le moment.</p>
+						}
+						className="min-w-[600px]"
+					>
+						Veuillez rejoindre un projet pour accéder au tableau de bord.
+				</Message>
 			</div>
 		</div>
+		
 	);
 }

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react/jsx-no-undef */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable import/order */
 "use client";
@@ -5,7 +8,7 @@
 import React from "react";
 
 import { Icon } from "@radix-ui/react-select";
-import { ChevronDown, Delete } from "lucide-react";
+import { ChevronDown, Delete, UserCog } from "lucide-react";
 
 import { type UserWithRole } from "~/actions/project-actions";
 import { Button } from "~/components/ui/button";
@@ -42,6 +45,13 @@ import {
 } from "~/features/settings/actions/settings-actions";
 import { cn } from "~/lib/utils";
 import { userRoles } from "~/schema";
+import { Form, FormField, FormItem, FormMessage } from "~/components/ui/form";
+import { Textarea } from "~/components/ui/textarea";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { addSkills } from "~/actions/project-actions";
+
 
 function UsersTable({
 	users,
@@ -52,6 +62,20 @@ function UsersTable({
 	projectId: number;
 	userId: string;
 }) {
+	const formSchema = z.object({
+	description: z.string().max(1000),
+	});
+
+
+	const form = useForm<z.infer<typeof formSchema>>({
+			resolver: zodResolver(formSchema),
+			defaultValues: {
+				description: "",
+			},
+	});
+	async function onSubmit(values: z.infer<typeof formSchema>) {
+		const response = await addSkills(projectId,userId,values.description);
+	}
 	return (
 		<div className="overflow-hidden rounded-lg border bg-background-dialog/50 py-2">
 			<Table>
@@ -121,6 +145,69 @@ function UsersTable({
 												</SelectGroup>
 											</SelectContent>
 										</Select>
+									</TableCell>
+									<TableCell>
+										<Dialog>
+											<DialogTrigger>
+												{user.user_id == userId && (
+												<Button variant="secondary"
+														size="sm"
+														className="hover:bg-blue-500"
+												>
+													<UserCog className="h-4 w-4"/>
+												</Button>)}
+											</DialogTrigger>
+											<DialogContent>
+												<DialogHeader>
+													<DialogTitle>
+														Donner votre compétence
+													</DialogTitle>
+												</DialogHeader>
+												<Form {...form}>
+													<form onSubmit={form.handleSubmit(onSubmit)}>
+														<FormField
+															control={form.control}
+															name="description"
+															render={({ field }) => (
+																<FormItem>
+																	<Textarea
+																		placeholder="Describe the tasks you would like to create..."
+																		className="h-[200px] max-h-[180px] bg-transparent"
+																		{...field}
+																	/>
+																	<FormMessage />
+																</FormItem>
+															)}
+														/>
+													</form>
+												</Form>
+												<DialogFooter>
+													<DialogClose asChild>
+														<Button
+															type="button"
+															variant="secondary"
+														>
+															Annuler
+														</Button>
+													</DialogClose>
+													<DialogClose asChild>
+														<Button
+															type="submit"
+															variant="default"
+															onClick={() =>
+																removeUserFromProject(
+																	projectId,
+																	user.user_id,
+																)
+															}
+														>
+															Sauvegarder
+														</Button>
+													</DialogClose>
+												</DialogFooter>
+											</DialogContent>
+											
+										</Dialog>
 									</TableCell>
 									<TableCell
 										className={cn("px-4 py-1", {

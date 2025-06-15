@@ -25,6 +25,8 @@ export type CreateForm = {
 	sprint_start: Date;
 	invitees: string[];
 	timezoneOffset: number;
+	image: string;
+	color: string;
 };
 
 export async function createProject(data: CreateForm): Promise<ProjectResponse> {

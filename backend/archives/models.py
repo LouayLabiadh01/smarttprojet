@@ -1,4 +1,6 @@
 from django.db import models
+from users.models import User
+import uuid
 
 class Archive(models.Model):
     project_id = models.IntegerField(blank=True, null=True)
@@ -17,3 +19,37 @@ class Archive(models.Model):
 
     def __str__(self):
         return self.name
+
+class Quicklink(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    url = models.URLField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return self.title
+
+
+
+class Sticky(models.Model):
+    NOTE = 'note'
+    CHECKLIST = 'checklist'
+    TYPE_CHOICES = [
+        (NOTE, 'Note'),
+        (CHECKLIST, 'Checklist'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    content = models.TextField(blank=True)
+    color = models.CharField(max_length=50, default='yellow')
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=NOTE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+class ChecklistItem(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    sticky = models.ForeignKey(Sticky, on_delete=models.CASCADE, related_name='items')
+    text = models.CharField(max_length=255)
+    checked = models.BooleanField(default=False)

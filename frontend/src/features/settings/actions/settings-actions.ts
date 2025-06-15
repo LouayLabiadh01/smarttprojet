@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -83,6 +85,32 @@ export async function handleDeleteProject(projectId: number) {
 	}
 
 	redirect("/");
+}
+
+
+
+export async function handleDeleteProjects(projectId: number) {
+	const userId = await authenticate();
+	await checkPermissions(userId, projectId, ["owner"]);
+
+	if (!projectId) {
+		return { success: false, message: "Project ID not found" };
+	}
+
+	const res = await fetch(`${API_URL}/api/projects/${projectId}/delete/`, {
+		method: "DELETE",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
+
+	if (!res.ok) {
+		const err = await res.json();
+		return { success: false, message: err?.error ?? "Delete failed" };
+	}
+
+	 
+
 }
 
 export async function leaveProject(projectId: number) {

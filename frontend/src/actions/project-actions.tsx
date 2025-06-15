@@ -31,6 +31,21 @@ export async function getProject(projectId: number, userId: string) {
 	}
 }
 
+export async function addSkills(projectId: number, userId: string, description : string) {
+	try {
+		const res = await fetch(`${process.env.DJANGO_API_URL}/api/${projectId}/user/${userId}/`, {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(description),
+		}); 
+		const result = await res.json();
+		return result;
+	} catch (error) {
+		console.error(error);
+		return { data: null, error: "An unknown error occurred" };
+	}
+}
+
 export async function updateProject(projectId: number, data: any) {
 	try {
 		const res = await fetch(`${process.env.DJANGO_API_URL}/api/projects/${projectId}/update/`, {

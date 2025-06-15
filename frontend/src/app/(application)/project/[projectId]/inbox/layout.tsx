@@ -26,7 +26,8 @@ export default async function InboxLayout({
 	return (
 		<div className="relative grid h-[calc(100svh-1rem-1px)] grid-cols-4">
 			<div className="col-span-1 flex h-full flex-col overflow-hidden border-r">
-				<PageHeader className="h-[57px]" toggle={false}>
+				<PageHeader breadCrumbs></PageHeader>
+				<PageHeader className="h-[57px]" toggle={false} breadCrumbs>
 					<h3 className="text-2xl font-medium tracking-tight">
 						Inbox
 					</h3>

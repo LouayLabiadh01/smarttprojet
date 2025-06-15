@@ -1,10 +1,14 @@
 "use server";
-
-import { eq } from "drizzle-orm";
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 import { authenticate } from "~/actions/security/authenticate";
-import { db } from "~/db";
-import { type User } from "~/schema";
+
+export type User = {
+	user_id: string;
+	username: string;
+	profilePicture: string;
+	role:string;
+};
 
 type GetUserSuccess = {
 	success: true;
@@ -25,13 +29,23 @@ export async function getUser(): Promise<GetUserResponse> {
 		return { success: false, message: "User not authenticated" };
 	}
 
-	const user = await db.query.users.findFirst({
-		where: (user) => eq(user.user_id, userId),
-	});
+	try {
+		const res = await fetch(`${process.env.DJANGO_API_URL}/users/api/${userId}/`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
 
-	if (!user) {
-		return { success: false, message: "User not found" };
+		if (!res.ok) {
+			return { success: false, message: "User not found" };
+		}
+
+		const user = await res.json();
+
+		return { success: true, message: "User found", user };
+	} catch (error) {
+		console.error("Failed to fetch user:", error);
+		return { success: false, message: "Failed to fetch user" };
 	}
-
-	return { success: true, message: "User found", user };
 }

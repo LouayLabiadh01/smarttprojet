@@ -41,6 +41,7 @@ class Task(models.Model):
     projectId = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
     sprintId = models.ForeignKey(Sprint, on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks',default=-1)
     branchName = models.CharField(max_length=255, null=True, blank=True)
+    subTask = models.CharField(default='', blank=True, max_length=255, null=True,)
 
     def __str__(self):
         return self.title

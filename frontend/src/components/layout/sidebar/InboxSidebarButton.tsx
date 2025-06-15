@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
@@ -6,10 +7,12 @@
 
 import React, { useMemo } from "react";
 
-import { Bell } from "lucide-react";
+import { Bell, Inbox } from "lucide-react";
 
 import SidebarButton from "~/components/layout/sidebar/sidebar-button";
 import { useRealtimeStore } from "~/store/realtime";
+import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "~/components/ui/sidebar";
+import { Collapsible } from "~/components/ui/collapsible";
 
 type Props = {
 	projectId: string;
@@ -17,23 +20,26 @@ type Props = {
 
 export default function InboxSidebarButton({ projectId }: Props) {
 	const notifications = useRealtimeStore((state) => state.notifications);
-	console.log("ya bro",notifications)
 	const notificationCount = useMemo(() => {
 		return notifications.filter((n) => n.readAt === null).length;
 	}, [notifications]);
 
 	return (
-		<SidebarButton
-			label="Notification"
-			icon={
-				<div>
-					<div className="absolute right-3 top-[50%] flex aspect-square h-[50%] translate-y-[-50%] items-center justify-center rounded-full text-xs">
-						{notificationCount == 0 ? null : notificationCount}
-					</div>
-					<Bell className="h-5 w-5 min-w-5" />
-				</div>
-			}
-			url={`/project/${projectId}/inbox`}
-		/>
+			<SidebarMenu>
+				<Collapsible
+					asChild
+					className="group/collapsible"
+				>
+					<SidebarMenuItem>
+						<SidebarMenuButton tooltip="Notification">
+						{Inbox && <Inbox />}
+						<a href={`/project/${projectId}/inbox`}>
+					
+							<span>Notification</span>
+						</a>
+						</SidebarMenuButton>
+					</SidebarMenuItem>
+				</Collapsible>
+			</SidebarMenu>
 	);
 }

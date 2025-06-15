@@ -140,13 +140,11 @@ def auto_sprint_view(request):
 
     return Response(results, status=status.HTTP_200_OK)
 
-
 @api_view(['GET'])
 def get_sprints(request, project_id):
     data = get_sprints_for_project(project_id)
     print(data)
     return Response(data)
-
 
 @api_view(['GET'])
 def get_current_sprint(request, project_id):
@@ -160,15 +158,12 @@ def get_current_sprint(request, project_id):
         "end_date": sprint.end_date,
     })
 
-
-
 @api_view(['POST'])
 def update_sprints(request, project_id):
     print(request.data)
     sprint_duration_weeks = int(request.data.get("sprintDuration"))
     sprint_start_str = request.data.get("sprintStart")
 
-    # Convert ISO date string to datetime object using strptime
     sprint_start = datetime.strptime(sprint_start_str, "%Y-%m-%dT%H:%M:%S.%fZ")
 
     project = get_object_or_404(Project, pk=project_id)
@@ -176,7 +171,6 @@ def update_sprints(request, project_id):
     project.sprint_start = sprint_start
     project.save()
 
-    # Update all related sprints
     sprints = Sprint.objects.filter(project=project).order_by("start_date")
     for idx, sprint in enumerate(sprints):
         start_date = sprint_start + timedelta(weeks=idx * sprint_duration_weeks)
@@ -188,8 +182,6 @@ def update_sprints(request, project_id):
 
     return Response({"success": True})
 
-
-
 @api_view(['POST'])
 def api_create_invite(request):
     user_id = request.data.get("userId")
@@ -199,7 +191,6 @@ def api_create_invite(request):
     
     token = create_invite(user_id, int(project_id))
     return Response({"success": True, "token": token})
-
 
 @api_view(['POST'])
 def api_join_project(request):
@@ -211,8 +202,6 @@ def api_join_project(request):
     result = join_project(user_id, token)
     print(result)
     return Response(result)
-
-
 
 @api_view(["POST"])
 def api_add_user_to_project(request):
@@ -577,3 +566,27 @@ def get_projects_report(request):
         })
 
     return Response(data)
+
+
+@api_view(['PUT'])
+def update_user_skills(request, project_id, user_id):
+    try:
+        user = User.objects.get(pk=user_id)
+        project = Project.objects.get(pk=project_id)
+        relation = UsersToProjects.objects.get(user=user, project=project)
+    except (User.DoesNotExist, Project.DoesNotExist, UsersToProjects.DoesNotExist):
+        return Response({'error': 'User, project, or relation not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    # On suppose que la description est une chaîne de caractères
+    if isinstance(request.data, str):
+        new_skills = request.data
+    else:
+        return Response({'error': 'Expected a plain string for skills'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if len(new_skills) > 30:
+        return Response({'error': 'Skills string too long (max 30 characters)'}, status=status.HTTP_400_BAD_REQUEST)
+
+    relation.skills = new_skills
+    relation.save()
+
+    return Response({'message': 'Skills updated successfully', 'skills': relation.skills}, status=status.HTTP_200_OK)

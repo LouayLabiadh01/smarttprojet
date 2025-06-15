@@ -38,8 +38,8 @@ export async function createTask(data: CreateTaskData) {
 		const userId = await authenticate();
 		await checkPermissions(userId, data.projectId);
 
-
-		const newTask = CreateTaskSchema.parse(data);
+		const Task = CreateTaskSchema.parse(data);
+		const newTask = { ...Task, subTask: data.subTask };
 		newTask.branchName = taskNameToBranchName(newTask.title);
 
 		const sprintId = Number(data.sprintId);

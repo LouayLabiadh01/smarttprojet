@@ -17,4 +17,8 @@ urlpatterns = [
     path("comments/delete/<int:delete_id>/", views.delete_comment),
     path("<int:task_id>/history/", views.create_task_history),
     path('<int:task_id>/view/', views.update_or_insert_task_view, name='update_or_insert_task_view'),
+
+    path('tasks/recent/', views.get_recent_tasks, name='get_recent_tasks'),
+    path('tasks/assigned/', views.get_assigned_tasks, name='get_assigned_tasks'),
+    path('tasks/<str:task_id>/', views.get_task_by_id, name='get_task_by_id'),
 ]

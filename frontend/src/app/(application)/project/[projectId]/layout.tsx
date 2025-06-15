@@ -17,13 +17,16 @@ import { redirect } from "next/navigation";
 import { getAssigneesForProject, getProject } from "~/actions/project-actions";
 import { getSprintsForProject } from "~/actions/sprint-actions";
 import AppSidebar from "~/components/layout/sidebar/AppSidebar";
-import { SidebarProvider } from "~/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
 //import { getAiLimitCount } from "~/features/ai/actions/ai-limit-actions";
 import { getAllNotifications } from "~/features/notifications/actions/notification-actions";
 import { logger } from "~/lib/logger";
 import constructToastURL from "~/lib/toast/global-toast-url-constructor";
 
 import ProjectState from "./project-state";
+import { getUser } from "~/actions/user-actions";
+import { ThemeProvider } from "~/components/theme-provider";
+import { ModeToggle } from "~/components/ui/mode-toggle";
 
 type Params = {
 	children: React.ReactNode;
@@ -55,6 +58,9 @@ export default async function ApplicationLayout({
 			),
 		);
 	}
+	const userr = await getUser(user.id);
+	const isAdmin = userr.role === "Admin";
+	const isChef = userr.role ==="Chef";
 
 	const projectIdInt = parseInt(projectId, 10);
 
@@ -102,12 +108,20 @@ export default async function ApplicationLayout({
 				userId={user.id}
 				aiUsageCount={5}
 			/>
-			<SidebarProvider defaultOpen={defaultOpen}>
-				<AppSidebar projectId={projectId} />
-				<main className="flex h-[calc(100svh-1rem)] w-full flex-1 flex-col border-l border-t bg-accent/25">
-					{children}
-				</main>
-			</SidebarProvider>
+			<ThemeProvider
+				attribute="class"
+				defaultTheme="system"
+				enableSystem
+				disableTransitionOnChange
+			>
+				<SidebarProvider defaultOpen={defaultOpen}>
+					
+					<AppSidebar projectId={projectId} isAdmin={isAdmin} isChef={isChef} />
+					<main className="flex h-[calc(100svh-1rem)] w-full flex-1 flex-col border-l border-t">
+						{children}
+					</main>
+				</SidebarProvider>
+			</ThemeProvider>
 		</HydrationBoundary>
 	);
 }

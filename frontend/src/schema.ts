@@ -67,6 +67,7 @@ export const tasks = pgTable("tasks", {
 		.notNull(),
 	sprintId: integer("sprint_id").default(-1).notNull(),
 	branchName: varchar("branch_name", { length: 255 }),
+	subTask: varchar("subTask", { length: 255 }),
 });
 
 // validators
@@ -82,6 +83,7 @@ export const insertTaskSchema__required = insertTaskSchema.required({
 	projectId: true,
 	sprintId: true,
 	backlogOrder: true,
+	subTask: true
 });
 
 // types

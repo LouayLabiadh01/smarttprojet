@@ -1,7 +1,9 @@
+/* eslint-disable import/order */
 import React from "react";
 
 import { EnvelopeClosedIcon } from "@radix-ui/react-icons";
 import { type Metadata } from "next";
+import PageHeader from "~/components/layout/PageHeader";
 
 export const metadata: Metadata = {
 	title: "Inbox",

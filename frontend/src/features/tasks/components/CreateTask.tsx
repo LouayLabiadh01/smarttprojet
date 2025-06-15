@@ -64,6 +64,7 @@ export const taskFormSchema = buildValidator([
 	"sprintId",
 	"backlogOrder",
 	"branchName",
+	"subTask"
 ])
 	.refine((data) => !(data.status === "backlog" && data.sprintId !== "-1"), {
 		message: "If the status is backlog, there cannot be a sprint.",

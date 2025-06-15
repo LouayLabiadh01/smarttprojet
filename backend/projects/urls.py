@@ -25,5 +25,6 @@ urlpatterns = [
     path("projects/<int:pk>/archive/", views.archive_project),
     path("projects/<int:pk>/unarchive/", views.unarchive_project),
     path('projects/', views.get_projects_report, name='get_projects_report'),
+    path('api/<int:project_id>/user/<str:user_id>/', views.update_user_skills),
 
 ]

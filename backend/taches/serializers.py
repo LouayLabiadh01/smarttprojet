@@ -3,7 +3,7 @@ from .models import Task, TaskHistory, TaskToView, Comment
 
 
 from rest_framework import serializers
-from projects.models import Sprint
+from projects.models import Sprint, Project
 from datetime import datetime
 from projects.serializers import UserSerializer
 
@@ -12,6 +12,11 @@ class SprintSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sprint
         fields = ["id", "name", "start_date", "end_date", "project"]
+
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['id', 'name']
 
 
 class SprintTaskSerializer(serializers.ModelSerializer):
@@ -30,6 +35,7 @@ class TaskHistorySerializer(serializers.ModelSerializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     assignee = UserSerializer(read_only=True)
+    projectId = ProjectSerializer()
 
     class Meta:
         model = Task
